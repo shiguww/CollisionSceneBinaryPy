@@ -232,14 +232,16 @@ def ImportFromDae(filePath: str, is_map_object: bool = False):
     csb = CsbFile()
     collada = Collada(filePath)
     myscene = collada.scene
+    root_node_found = False
     #settings = ImportSettings().IsMapObject = is_map_object
     
     for node in myscene.nodes:
         if node.name.startswith('MODELSPLIT'):
             # model split stuff
             pass
-        else:
+        elif node.name == "A":
             # DEADBEEF model
+            root_node_found = True
             ID = 0
             newModel = csb.Model()
             ImportNode(node, True)
@@ -250,6 +252,7 @@ def ImportFromDae(filePath: str, is_map_object: bool = False):
     #    print(obj.Name)
     #    print(obj.Point1)
     #    print()
+    assert root_node_found, "Root node not found, make sure it's named 'A'"
     return csb
             
 
