@@ -1,5 +1,5 @@
-
-/__pycache__
 *.csb
 *.dae
 *.ctb
+.venv
+/__pycache__
