@@ -2,6 +2,7 @@ from collada import *
 import numpy as np
 from math import degrees
 
+arr_index = 0
 eff = material.Effect("effect0", [], "phong", diffuse=(1.0, 1.0, 1.0, 1.0), double_sided=False)
 
 def SetupMaterial(attribute: int, flag: int, identifiers: list[int] = None):
@@ -21,6 +22,8 @@ def SetupMaterial(attribute: int, flag: int, identifiers: list[int] = None):
 
 def SetupMesh(name: str, mat: str, triangles: list, positions: list):
     global iomodel
+    global arr_index
+
     vertsrc = positions
     normsrc = []
     idxsrc = []
@@ -43,15 +46,15 @@ def SetupMesh(name: str, mat: str, triangles: list, positions: list):
         normsrc.append(tri.Normal)
         normsrc.append(tri.Normal)
         normsrc.append(tri.Normal)
-    vertsrc = source.FloatSource("verts-array", np.array(vertsrc).ravel(), ('X', 'Y', 'Z'))
-    normsrc = source.FloatSource("normals-array", np.array(normsrc).ravel(), ('X', 'Y', 'Z'))
+    vertsrc = source.FloatSource(f"verts-array-{arr_index}", np.array(vertsrc).ravel(), ('X', 'Y', 'Z'))
+    normsrc = source.FloatSource(f"normals-array-{arr_index}", np.array(normsrc).ravel(), ('X', 'Y', 'Z'))
     geom = geometry.Geometry(iomodel, name, name, [vertsrc, normsrc])
     
     #print(len(np.array(idxsrc).ravel()))
     idxsrc = np.array(idxsrc)
     input_list = source.InputList()
-    input_list.addInput(0, "VERTEX", "#verts-array")
-    input_list.addInput(1, "NORMAL", "#normals-array")
+    input_list.addInput(0, "VERTEX", f"#verts-array-{arr_index}")
+    input_list.addInput(1, "NORMAL", f"#normals-array-{arr_index}")
     
     #print(input_list.getList())
     triset = geom.createTriangleSet(idxsrc, input_list, mat.symbol)
@@ -59,6 +62,7 @@ def SetupMesh(name: str, mat: str, triangles: list, positions: list):
     
     geomnode = scene.GeometryNode(geom, [mat])
     
+    arr_index += 1
     return geom, geomnode
 
 def LoadNode(node, parent, repeat):
